@@ -32,7 +32,7 @@ RUN \
 RUN \ 
   cd ~ && \
   wget https://download2.rstudio.org/rstudio-server-rhel-1.0.44-x86_64.rpm && \
-  wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm && \
+  wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm
   
 USER root
 
