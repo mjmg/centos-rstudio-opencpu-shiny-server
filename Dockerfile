@@ -98,10 +98,10 @@ ADD \
 
 # install additional packages
 ADD \ 
-  installpackages.sh /usr/local/bin/installpackages.sh
+  installpackages.sh /usr/local/bin/installRpackages.sh
 RUN \
-  chmod +x /usr/local/bin/installpackages.sh && \
-  /usr/local/bin/installpackages.sh
+  chmod +x /usr/local/bin/installRpackages.sh && \
+  /usr/local/bin/installRpackages.sh
   
 # Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
