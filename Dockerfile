@@ -98,7 +98,7 @@ ADD \
 
 # install additional packages
 ADD \ 
-  installpackages.sh /usr/local/bin/installRpackages.sh
+  installRpackages.sh /usr/local/bin/installRpackages.sh
 RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
