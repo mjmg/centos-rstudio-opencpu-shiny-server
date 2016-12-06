@@ -47,7 +47,7 @@ RUN \
   yum install -y --nogpgcheck /home/builder/rstudio-server-rhel-1.0.44-x86_64.rpm 
 
 RUN \
-  R -e \"install.packages('shiny', repos='https://cran.rstudio.com/')
+  R -e \"install.packages('shiny', repos='https://cran.rstudio.com/')"
 
 RUN \
   yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
