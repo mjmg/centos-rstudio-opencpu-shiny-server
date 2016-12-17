@@ -3,6 +3,8 @@
 # This installs R packages in CRAN
 echo "Installing ggplot2 from CRAN"
 Rscript -e "install.packages('ggplot2')"
+echo "Installing rmarkdown from CRAN"
+Rscript -e "install.packages('rmarkdown')"
 
 # This installs R packages from github
 echo "Installing hadley/dplyr from github"
