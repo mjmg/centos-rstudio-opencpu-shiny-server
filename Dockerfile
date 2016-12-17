@@ -28,12 +28,12 @@ RUN \
   cd ~ && \
   rpm -ivh opencpu-1.6.2-7.1.src.rpm && \
   rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec 
-  
-RUN \ 
+
+RUN \
   cd ~ && \
   wget https://download2.rstudio.org/rstudio-server-rhel-1.0.44-x86_64.rpm && \
   wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm
-  
+
 USER root
 
 RUN \
@@ -47,21 +47,20 @@ RUN \
   yum install -y --nogpgcheck /home/builder/rstudio-server-rhel-1.0.44-x86_64.rpm 
 
 RUN \
-  #R -e \"install.packages('shiny', repos='https://cran.rstudio.com/')"
   echo "Installing shiny from CRAN" && \
-  Rscript -e "install.packages('shiny')"
-
+  Rscript -e "install.packages('shiny')" && \
+  echo "Installing rmarkdown from CRAN" && \
+  Rscript -e "install.packages('rmarkdown')"
 
 RUN \
   yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
-  
+
 RUN mkdir -p /var/log/shiny-server \
 	&& chown shiny:shiny /var/log/shiny-server \
 	&& chown shiny:shiny -R /srv/shiny-server \
 	&& chmod 777 -R /srv/shiny-server \
 	&& chown shiny:shiny -R /opt/shiny-server/samples/sample-apps \
 	&& chmod 777 -R /opt/shiny-server/samples/sample-apps 
-
 
 # Cleanup
 RUN \
@@ -71,20 +70,20 @@ RUN \
 
 # Add default root password with password r00tpassw0rd
 RUN \
-  echo "root:r00tpassw0rd" | chpasswd  
+  echo "root:r00tpassw0rd" | chpasswd
 
 # Add default rstudio user with pass rstudio
 RUN \
   useradd rstudio && \
   echo "rstudio:rstudio" | chpasswd && \ 
   chmod -R +r /home/rstudio
-  
+
 # Apache ports
 EXPOSE 80
 EXPOSE 443
-EXPOSE 8004
+#EXPOSE 8004
 EXPOSE 9001
-EXPOSE 3838
+#EXPOSE 3838
 
 USER root
 
@@ -92,16 +91,23 @@ USER root
 ADD \
   rstudio-server.conf /etc/supervisor/conf.d/rstudio-server.conf
 ADD \
-  opencpu.conf /etc/supervisor/conf.d/opencpu.conf 
+  opencpu.conf /etc/supervisor/conf.d/opencpu.conf
 ADD \
   shiny-server.conf /etc/supervisor/conf.d/shiny-server.conf
 
+# Use SSL and password protect shiny-server with shiny-user:shiny-password
+ADD \
+  shiny-httpd.conf /etc/httpd/conf.d/shiny-httpd.conf
+ADD \
+  .htpasswd /etc/httpd/conf.d/.htpasswd
+
+
 # install additional packages
-ADD \ 
+ADD \
   installRpackages.sh /usr/local/bin/installRpackages.sh
 RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
-  
+
 # Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
