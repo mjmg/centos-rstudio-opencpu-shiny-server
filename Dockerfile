@@ -66,14 +66,14 @@ RUN \
   echo "Installing rmarkdown from CRAN" && \
   Rscript -e "install.packages('rmarkdown')"
 
+RUN \
+  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
+
 # Cleanup
 RUN \
   rm -rf /home/builder/* && \
   userdel builder && \
   yum autoremove -y
-
-RUN \
-  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
 RUN mkdir -p /var/log/shiny-server && \
   chown shiny:shiny /var/log/shiny-server && \
