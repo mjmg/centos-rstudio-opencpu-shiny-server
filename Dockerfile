@@ -12,7 +12,7 @@ RUN \
                  openssl-devel \
                  libpng-devel \
                  libtiff-devel \
-                 libjpeg-turbo-devel
+                 libjpeg-turbo-devel \
                  fftw-devel \
                  mesa-libGLU-devel \
                  netcdf-devel && \
