@@ -90,13 +90,10 @@ RUN \
 RUN \
   #useradd rstudio && \
   echo "shiny:shiny" | chpasswd
-  chmod -R +r /home/shiny
+  #chmod -R +r /home/shiny
 
 # Server ports
-EXPOSE 80 443 9001
-
-USER root
-
+EXPOSE 443 9001
 
 # Add supervisor conf files
 ADD \
@@ -105,7 +102,6 @@ ADD \
   ./etc/supervisor/conf.d/opencpu.conf /etc/supervisor/conf.d/opencpu.conf
 ADD \
   ./etc/supervisor/conf.d/shiny-server.conf /etc/supervisor/conf.d/shiny-server.conf
-
 
 # Use SSL and password protect shiny-server with shiny:shiny
 ADD \
@@ -117,14 +113,12 @@ ADD \
 ADD \
   ./etc/httpd/conf.d/force-ssl.conf /etc/httpd/conf.d/force-ssl.conf
 
-
 # install additional packages
 ADD \
   installRpackages.sh /usr/local/bin/installRpackages.sh
 RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
-
 
 # Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
