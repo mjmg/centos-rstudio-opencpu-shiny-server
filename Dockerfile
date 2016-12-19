@@ -14,7 +14,7 @@ RUN \
                  libtiff-devel \
                  libjpeg-turbo-devel
                  fftw-devel \
-                 mesa-GLU-devel \
+                 mesa-libGLU-devel \
                  netcdf-devel && \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/rapache-1.2.7-2.1.src.rpm && \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/opencpu-1.6.2-7.1.src.rpm && \
