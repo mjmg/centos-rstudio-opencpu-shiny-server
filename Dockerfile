@@ -12,7 +12,7 @@ RUN \
                  openssl-devel \
                  libpng-devel \
                  libtiff-devel \
-                 libjpeg-turbo-devel
+                 libjpeg-turbo-devel \
                  fftw-devel \
                  mesa-libGLU-devel \
                  netcdf-devel && \
@@ -66,14 +66,14 @@ RUN \
   echo "Installing rmarkdown from CRAN" && \
   Rscript -e "install.packages('rmarkdown')"
 
+RUN \
+  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
+
 # Cleanup
 RUN \
   rm -rf /home/builder/* && \
   userdel builder && \
   yum autoremove -y
-
-RUN \
-  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
 RUN mkdir -p /var/log/shiny-server && \
   chown shiny:shiny /var/log/shiny-server && \
@@ -90,13 +90,10 @@ RUN \
 RUN \
   #useradd rstudio && \
   echo "shiny:shiny" | chpasswd
-  chmod -R +r /home/shiny
+  #chmod -R +r /home/shiny
 
 # Server ports
-EXPOSE 80 443 9001
-
-USER root
-
+EXPOSE 443 9001
 
 # Add supervisor conf files
 ADD \
@@ -105,7 +102,6 @@ ADD \
   ./etc/supervisor/conf.d/opencpu.conf /etc/supervisor/conf.d/opencpu.conf
 ADD \
   ./etc/supervisor/conf.d/shiny-server.conf /etc/supervisor/conf.d/shiny-server.conf
-
 
 # Use SSL and password protect shiny-server with shiny:shiny
 ADD \
@@ -117,14 +113,12 @@ ADD \
 ADD \
   ./etc/httpd/conf.d/force-ssl.conf /etc/httpd/conf.d/force-ssl.conf
 
-
 # install additional packages
 ADD \
   installRpackages.sh /usr/local/bin/installRpackages.sh
 RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
-
 
 # Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
