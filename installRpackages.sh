@@ -39,4 +39,14 @@ echo "Installing data.table from CRAN"
 Rscript -e "install.packages('data.table')"
 echo "Installing SparseM from CRAN"
 Rscript -e "install.packages('SparseM')"
+echo "Installing caret from CRAN"
+Rscript -e "install.packages('caret')"
+echo "Installing lazyeval from CRAN"
+Rscript -e "install.packages('lazyeval')"
+echo "Installing ROCR from CRAN"
+Rscript -e "install.packages('ROCR')"
+echo "Installing kernlab from CRAN"
+Rscript -e "install.packages('kernlab')"
+
+
 
