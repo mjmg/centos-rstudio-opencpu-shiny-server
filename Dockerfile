@@ -66,6 +66,24 @@ RUN \
   echo "Installing rmarkdown from CRAN" && \
   Rscript -e "install.packages('rmarkdown')"
 
+# Add default root password with password r00tpassw0rd
+RUN \
+  echo "root:r00tpassw0rd" | chpasswd
+
+# Configure default shiny user with password shiny
+RUN \
+  useradd shiny && \
+  echo "shiny:shiny" | chpasswd
+  #chmod -R +r /home/shiny
+
+RUN \
+  mkdir -p /var/log/shiny-server && \
+  chown shiny:shiny /var/log/shiny-server && \
+  chown shiny:shiny -R /srv/shiny-server && \
+  chmod 777 -R /srv/shiny-server && \
+  chown shiny:shiny -R /opt/shiny-server/samples/sample-apps && \
+  chmod 777 -R /opt/shiny-server/samples/sample-apps
+
 RUN \
   yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
@@ -75,25 +93,8 @@ RUN \
   userdel builder && \
   yum autoremove -y
 
-RUN mkdir -p /var/log/shiny-server && \
-  chown shiny:shiny /var/log/shiny-server && \
-  chown shiny:shiny -R /srv/shiny-server && \
-  chmod 777 -R /srv/shiny-server && \
-  chown shiny:shiny -R /opt/shiny-server/samples/sample-apps && \
-  chmod 777 -R /opt/shiny-server/samples/sample-apps
-
-# Add default root password with password r00tpassw0rd
-RUN \
-  echo "root:r00tpassw0rd" | chpasswd
-
-# Configure default shiny user with password shiny
-RUN \
-  #useradd rstudio && \
-  echo "shiny:shiny" | chpasswd
-  #chmod -R +r /home/shiny
-
 # Server ports
-EXPOSE 443 9001
+EXPOSE 80 443 9001
 
 # Add supervisor conf files
 ADD \
