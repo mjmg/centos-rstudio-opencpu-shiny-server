@@ -73,11 +73,6 @@ RUN \
 RUN \
   echo "root:r00tpassw0rd" | chpasswd
 
-# Configure default shiny user with password shiny
-RUN \
-  useradd shiny && \
-  echo "shiny:shiny" | chpasswd
-  #chmod -R +r /home/shiny
 
 RUN \
   yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
@@ -89,9 +84,6 @@ RUN \
   chmod 777 -R /srv/shiny-server && \
   chown shiny:shiny -R /opt/shiny-server/samples/sample-apps && \
   chmod 777 -R /opt/shiny-server/samples/sample-apps
-
-RUN \
-  ln /srv/shiny-server /home/shiny/shiny-server -s
 
 # Cleanup
 RUN \
@@ -126,6 +118,21 @@ ADD \
 RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
+
+# Configure default shiny user with password shiny
+RUN \
+  usermod -d /home/shiny -s bash shiny && \
+  echo "shiny:shiny" | chpasswd
+  #chmod -R +r /home/shiny
+
+USER shiny
+
+RUN \
+  mkdir /srv/shiny-server/apps/ && \
+  mkdir /home/shiny/shiny-server/ && \
+  ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s
+
+USER root
 
 # Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
