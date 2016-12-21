@@ -1,6 +1,8 @@
 FROM mjmg/centos-r-base:latest
 
 RUN \
+  yum clean all && \
+  yum update -y && \
   yum install -y yum-utils \
                  rpmdevtools \
                  make \
@@ -15,6 +17,7 @@ RUN \
                  libjpeg-turbo-devel \
                  fftw-devel \
                  mesa-libGLU-devel \
+                 ed \
                  netcdf-devel && \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/rapache-1.2.7-2.1.src.rpm && \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/opencpu-1.6.2-7.1.src.rpm && \
@@ -77,6 +80,9 @@ RUN \
   #chmod -R +r /home/shiny
 
 RUN \
+  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
+
+RUN \
   mkdir -p /var/log/shiny-server && \
   chown shiny:shiny /var/log/shiny-server && \
   chown shiny:shiny -R /srv/shiny-server && \
@@ -85,7 +91,7 @@ RUN \
   chmod 777 -R /opt/shiny-server/samples/sample-apps
 
 RUN \
-  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
+  ln /srv/shiny-server /home/shiny/shiny-server -s
 
 # Cleanup
 RUN \
@@ -108,7 +114,7 @@ ADD \
 ADD \
   ./etc/httpd/conf.d/shiny-httpd.conf /etc/httpd/conf.d/shiny-httpd.conf
 ADD \
-  ./etc/httpd/conf.d/htpasswd /etc/httpd/conf.d/htpasswd
+  ./etc/httpd/conf.d/shinypasswd /etc/httpd/conf.d/shinypasswd
 
 # Force SSL for everything
 ADD \
