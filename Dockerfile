@@ -44,7 +44,7 @@ RUN \
 RUN \
   cd ~ && \
   rpm -ivh opencpu-1.6.2-7.1.src.rpm && \
-  rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec 
+  rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec
 
 RUN \
   cd ~ && \
@@ -72,7 +72,6 @@ RUN \
 # Add default root password with password r00tpassw0rd
 RUN \
   echo "root:r00tpassw0rd" | chpasswd
-
 
 RUN \
   yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
@@ -123,16 +122,16 @@ RUN \
 RUN \
   usermod -d /home/shiny -s bash shiny && \
   echo "shiny:shiny" | chpasswd
-  #chmod -R +r /home/shiny
+  chmod -R +r /home/shiny
 
 USER shiny
 
 RUN \
   mkdir /srv/shiny-server/apps/ && \
-  mkdir /home/shiny/shiny-server/ && \
+  mkdir /home/shiny/shiny-server/
   ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s
 
 USER root
 
-# Define default command.
+# Define default command
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
