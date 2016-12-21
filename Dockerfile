@@ -46,8 +46,9 @@ RUN \
   rpm -ivh opencpu-1.6.2-7.1.src.rpm && \
   rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec
 
+WORKDIR /tmp
+
 RUN \
-  cd ~ && \
   wget https://download2.rstudio.org/rstudio-server-rhel-1.0.44-x86_64.rpm && \
   wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
@@ -60,8 +61,11 @@ RUN \
   rpm -ivh opencpu-lib-*.rpm && \
   rpm -ivh opencpu-server-*.rpm
 
+# Cleanup
 RUN \
-  yum install -y --nogpgcheck /home/builder/rstudio-server-rhel-1.0.44-x86_64.rpm 
+  rm -rf /home/builder/* && \
+  userdel builder && \
+  yum autoremove -y
 
 RUN \
   echo "Installing shiny from CRAN" && \
@@ -74,7 +78,8 @@ RUN \
   echo "root:r00tpassw0rd" | chpasswd
 
 RUN \
-  yum install -y --nogpgcheck /home/builder/shiny-server-1.5.1.834-rh5-x86_64.rpm
+  yum install -y --nogpgcheck /tmp/shiny-server-1.5.1.834-rh5-x86_64.rpm && \
+  rm -f /tmp/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
 RUN \
   mkdir -p /var/log/shiny-server && \
@@ -84,11 +89,9 @@ RUN \
   chown shiny:shiny -R /opt/shiny-server/samples/sample-apps && \
   chmod 777 -R /opt/shiny-server/samples/sample-apps
 
-# Cleanup
 RUN \
-  rm -rf /home/builder/* && \
-  userdel builder && \
-  yum autoremove -y
+  yum install -y --nogpgcheck /tmp/rstudio-server-rhel-1.0.44-x86_64.rpm && \
+  rm -f /tmp/rstudio-server-rhel-1.0.44-x86_64.rpm
 
 # Server ports
 EXPOSE 80 443 9001
@@ -120,15 +123,15 @@ RUN \
 
 # Configure default shiny user with password shiny
 RUN \
-  usermod -d /home/shiny -s bash shiny && \
+  usermod -d /home/shiny -s /bin/bash shiny && \
   echo "shiny:shiny" | chpasswd
-  chmod -R +r /home/shiny
+#  chmod -R +r /home/shiny
 
 USER shiny
 
 RUN \
   mkdir /srv/shiny-server/apps/ && \
-  mkdir /home/shiny/shiny-server/
+  mkdir /home/shiny/shiny-server/ && \
   ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s
 
 USER root
