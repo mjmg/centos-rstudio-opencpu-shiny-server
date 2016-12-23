@@ -49,7 +49,7 @@ RUN \
 WORKDIR /tmp
 
 RUN \
-  wget https://download2.rstudio.org/rstudio-server-rhel-1.0.44-x86_64.rpm && \
+  wget https://s3.amazonaws.com/rstudio-dailybuilds/rstudio-server-rhel-1.0.136-x86_64.rpm && \
   wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
 USER root
@@ -67,6 +67,11 @@ RUN \
   userdel builder && \
   yum autoremove -y
 
+# Configure default shiny user with password shiny
+RUN \
+  useradd -m shiny && \
+  echo "shiny:shiny" | chpasswd
+
 RUN \
   echo "Installing shiny from CRAN" && \
   Rscript -e "install.packages('shiny')" && \
@@ -82,37 +87,8 @@ RUN \
   rm -f /tmp/shiny-server-1.5.1.834-rh5-x86_64.rpm
 
 RUN \
-  mkdir -p /var/log/shiny-server && \
-  chown shiny:shiny /var/log/shiny-server && \
-  chown shiny:shiny -R /srv/shiny-server && \
-  chmod 777 -R /srv/shiny-server && \
-  chown shiny:shiny -R /opt/shiny-server/samples/sample-apps && \
-  chmod 777 -R /opt/shiny-server/samples/sample-apps
-
-RUN \
-  yum install -y --nogpgcheck /tmp/rstudio-server-rhel-1.0.44-x86_64.rpm && \
-  rm -f /tmp/rstudio-server-rhel-1.0.44-x86_64.rpm
-
-# Server ports
-EXPOSE 80 443 9001
-
-# Add supervisor conf files
-ADD \
-  ./etc/supervisor/conf.d/rstudio-server.conf /etc/supervisor/conf.d/rstudio-server.conf
-ADD \
-  ./etc/supervisor/conf.d/opencpu.conf /etc/supervisor/conf.d/opencpu.conf
-ADD \
-  ./etc/supervisor/conf.d/shiny-server.conf /etc/supervisor/conf.d/shiny-server.conf
-
-# Use SSL and password protect shiny-server with shiny:shiny
-ADD \
-  ./etc/httpd/conf.d/shiny-httpd.conf /etc/httpd/conf.d/shiny-httpd.conf
-ADD \
-  ./etc/httpd/conf.d/shinypasswd /etc/httpd/conf.d/shinypasswd
-
-# Force SSL for everything
-ADD \
-  ./etc/httpd/conf.d/force-ssl.conf /etc/httpd/conf.d/force-ssl.conf
+  yum install -y --nogpgcheck /tmp/rstudio-server-rhel-1.0.136-x86_64.rpm && \
+  rm -f /tmp/rstudio-server-rhel-1.0.136-x86_64.rpm
 
 # install additional packages
 ADD \
@@ -121,20 +97,49 @@ RUN \
   chmod +x /usr/local/bin/installRpackages.sh && \
   /usr/local/bin/installRpackages.sh
 
-# Configure default shiny user with password shiny
+# Server ports
+EXPOSE 80 443 9001
+
+
+# Add supervisor conf files
+ADD \
+  ./etc/supervisor/conf.d/rstudio-server.conf /etc/supervisor/conf.d/rstudio-server.conf
+ADD \
+  ./etc/supervisor/conf.d/opencpu-server-httpd.conf /etc/supervisor/conf.d/opencpu-server-httpd.conf
+ADD \
+  ./etc/supervisor/conf.d/shiny-server.conf /etc/supervisor/conf.d/shiny-server.conf
+
+# Update rstudio server configuration
 RUN \
-  usermod -d /home/shiny -s /bin/bash shiny && \
-  echo "shiny:shiny" | chpasswd
-#  chmod -R +r /home/shiny
+  rm -f /etc/httpd/conf.d/rstudio.conf
+ADD \
+  ./etc/httpd/conf.d/rstudio-server.conf /etc/httpd/conf.d/rstudio-server.conf
+# Use SSL and password protect shiny-server with shiny:shiny
+ADD \
+  ./etc/httpd/conf.d/shiny-httpd.conf /etc/httpd/conf.d/shiny-httpd.conf
+ADD \
+  ./etc/httpd/conf.d/shinypasswd /etc/httpd/conf.d/shinypasswd
+# Force SSL for everything
+ADD \
+  ./etc/httpd/conf.d/force-ssl.conf /etc/httpd/conf.d/force-ssl.conf
+
 
 USER shiny
 
 RUN \
-  mkdir /srv/shiny-server/apps/ && \
   mkdir /home/shiny/shiny-server/ && \
   ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s
 
 USER root
+
+RUN \
+  mkdir -p /var/log/shiny-server && \
+  chown shiny:shiny /var/log/shiny-server && \
+  mkdir /srv/shiny-server/apps/ && \
+  chown shiny:shiny -R /srv/shiny-server && \
+  chmod 777 -R /srv/shiny-server && \
+  chown shiny:shiny -R /opt/shiny-server/ && \
+  chmod 777 -R /opt/shiny-server/samples/sample-apps
 
 # Define default command
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
