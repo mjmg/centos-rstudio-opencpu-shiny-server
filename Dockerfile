@@ -18,7 +18,10 @@ RUN \
                  fftw-devel \
                  mesa-libGLU-devel \
                  ed \
-                 netcdf-devel && \
+                 netcdf-devel \
+                 tk-devel
+
+RUN \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/rapache-1.2.7-2.1.src.rpm && \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/opencpu-1.6.2-7.1.src.rpm && \
   yum-builddep -y --nogpgcheck rapache-1.2.7-2.1.src.rpm && \
@@ -123,23 +126,24 @@ ADD \
 ADD \
   ./etc/httpd/conf.d/force-ssl.conf /etc/httpd/conf.d/force-ssl.conf
 
+RUN \
+  mkdir -p /var/log/shiny-server && \
+  chown shiny:shiny /var/log/shiny-server && \
+  mkdir /srv/shiny-server/apps/ && \
+  mkdir /srv/shiny-server/rmd/ && \
+  chown shiny:shiny -R /srv/shiny-server && \
+  chmod 777 -R /srv/shiny-server && \
+  chown shiny:shiny -R /opt/shiny-server/ && \
+  chmod 777 -R /opt/shiny-server/samples/sample-apps
 
 USER shiny
 
 RUN \
   mkdir /home/shiny/shiny-server/ && \
-  ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s
+  ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s && \
+  ln /srv/shiny-server/rmd /home/shiny/shiny-server/rmd -s
 
 USER root
-
-RUN \
-  mkdir -p /var/log/shiny-server && \
-  chown shiny:shiny /var/log/shiny-server && \
-  mkdir /srv/shiny-server/apps/ && \
-  chown shiny:shiny -R /srv/shiny-server && \
-  chmod 777 -R /srv/shiny-server && \
-  chown shiny:shiny -R /opt/shiny-server/ && \
-  chmod 777 -R /opt/shiny-server/samples/sample-apps
 
 # Define default command
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
