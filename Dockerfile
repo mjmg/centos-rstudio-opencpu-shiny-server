@@ -19,7 +19,8 @@ RUN \
                  mesa-libGLU-devel \
                  ed \
                  netcdf-devel \
-                 tk-devel
+                 tk-devel \
+                 git
 
 RUN \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/rapache-1.2.7-2.1.src.rpm && \
