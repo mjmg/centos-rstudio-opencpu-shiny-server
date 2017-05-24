@@ -49,5 +49,12 @@ Rscript -e "install.packages('ROCR')"
 echo "Installing kernlab from CRAN"
 Rscript -e "install.packages('kernlab')"
 
+echo "Installing VPdtw from CRAN"
+Rscript -e "install.packages('VPdtw')"
+echo "Installing kernlab from CRAN"
+Rscript -e "install.packages('mdatools')"
+
+
+
 
 
