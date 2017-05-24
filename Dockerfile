@@ -146,6 +146,8 @@ RUN \
   ln /srv/shiny-server/rmd /home/shiny/shiny-server/rmd -s
 
 USER root
+RUN \ 
+  chmod +rx /home/shiny
 
 # Define default command
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
