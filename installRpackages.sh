@@ -54,6 +54,9 @@ Rscript -e "install.packages('VPdtw')"
 echo "Installing kernlab from CRAN"
 Rscript -e "install.packages('mdatools')"
 
+echo "Installing david-clifford/VPdtw from github"
+Rscript -e "library(devtools); install_github('david-clifford/VPdtw')"
+
 echo "Installing mjmg/bluQplantQPEPBB from github"
 Rscript -e "library(devtools); install_github('mjmg/bluQplantQPEPBB')"
 
