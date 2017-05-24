@@ -23,17 +23,17 @@ RUN \
                  git
 
 RUN \
-  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/rapache-1.2.7-2.1.src.rpm && \
-  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-1.6/Fedora_23/src/opencpu-1.6.2-7.1.src.rpm && \
+  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_25/src/rapache-1.2.7-2.1.src.rpm && \
+  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_25/src/opencpu-2.0.2-14.1.src.rpm && \
   yum-builddep -y --nogpgcheck rapache-1.2.7-2.1.src.rpm && \
   yum-builddep -y --nogpgcheck opencpu-1.6.2-7.1.src.rpm
 
 RUN \
   useradd -ms /bin/bash builder && \
   chmod o+r rapache-1.2.7-2.1.src.rpm && \
-  chmod o+r opencpu-1.6.2-7.1.src.rpm && \
+  chmod o+r opencpu-2.0.2-14.1.src.rpm && \
   mv rapache-1.2.7-2.1.src.rpm /home/builder/ && \
-  mv opencpu-1.6.2-7.1.src.rpm /home/builder/
+  mv opencpu-2.0.2-14.1.src.rpm /home/builder/
 
 USER builder
 
@@ -47,7 +47,7 @@ RUN \
 
 RUN \
   cd ~ && \
-  rpm -ivh opencpu-1.6.2-7.1.src.rpm && \
+  rpm -ivh opencpu-2.0.2-14.1.src.rpm && \
   rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec
 
 WORKDIR /tmp
