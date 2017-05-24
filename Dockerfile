@@ -20,7 +20,8 @@ RUN \
                  ed \
                  netcdf-devel \
                  tk-devel \
-                 git
+                 git \
+                 NLopt-devel
 
 RUN \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_25/src/rapache-1.2.7-2.1.src.rpm && \
