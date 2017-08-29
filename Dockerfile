@@ -44,6 +44,8 @@ RUN \
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_$FEDORA_VERSION/src/rapache-$RAPACHE_VERSION.src.rpm && \ 
   wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_$FEDORA_VERSION/src/opencpu-$OPENCPU_VERSION.src.rpm
 
+USER root
+
 RUN \
   yum-builddep -y --nogpgcheck /home/mockbuild/opencpu-$OPENCPU_VERSION.src.rpm
 
