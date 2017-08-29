@@ -22,7 +22,6 @@
 #Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('BiocStyle')"
 #Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('EBImage')"
 
-
 # This installs R packages in CRAN
 #echo "Installing ggplot2 from CRAN"
 #Rscript -e "install.packages('ggplot2')"
