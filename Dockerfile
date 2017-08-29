@@ -1,5 +1,11 @@
 FROM mjmg/centos-r-base:latest
 
+ENV OPENCPU_VERSION 2.0.4-20.1
+ENV RAPACHE_VERSION 1.2.7-2.1
+ENV RSTUDIO_SERVER_VERSION 1.0.153
+ENV SHINY_SERVER_VERSION 1.5.3.838
+ENV FEDORA_VERSION 26
+
 RUN \
   yum clean all && \
   yum update -y && \
@@ -24,52 +30,52 @@ RUN \
                  NLopt-devel
 
 RUN \
-  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_25/src/rapache-1.2.7-2.1.src.rpm && \
-  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_25/src/opencpu-2.0.2-14.1.src.rpm && \
-  yum-builddep -y --nogpgcheck rapache-1.2.7-2.1.src.rpm && \
-  yum-builddep -y --nogpgcheck opencpu-2.0.2-14.1.src.rpm
+  useradd -ms /bin/bash mockbuild
 
-RUN \
-  useradd -ms /bin/bash builder && \
-  chmod o+r rapache-1.2.7-2.1.src.rpm && \
-  chmod o+r opencpu-2.0.2-14.1.src.rpm && \
-  mv rapache-1.2.7-2.1.src.rpm /home/builder/ && \
-  mv opencpu-2.0.2-14.1.src.rpm /home/builder/
-
-USER builder
+USER mockbuild
 
 RUN \
   rpmdev-setuptree
 
+USER mockbuild
+
+RUN \
+  cd /home/mockbuild/ && \
+  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_$FEDORA_VERSION/src/rapache-$RAPACHE_VERSION.src.rpm && \ 
+  wget http://download.opensuse.org/repositories/home:/jeroenooms:/opencpu-2.0/Fedora_$FEDORA_VERSION/src/opencpu-$OPENCPU_VERSION.src.rpm
+
+RUN \
+  yum-builddep -y --nogpgcheck /home/mockbuild/opencpu-$OPENCPU_VERSION.src.rpm
+
+RUN \
+  yum-builddep -y --nogpgcheck /home/mockbuild/rapache-$RAPACHE_VERSION.src.rpm
+
+
+USER mockbuild
+
 RUN \
   cd ~ && \
-  rpm -ivh rapache-1.2.7-2.1.src.rpm && \
+  rpm -ivh rapache-$RAPACHE_VERSION.src.rpm && \
   rpmbuild -ba ~/rpmbuild/SPECS/rapache.spec
 
 RUN \
   cd ~ && \
-  rpm -ivh opencpu-2.0.2-14.1.src.rpm && \
+  rpm -ivh opencpu-$OPENCPU_VERSION.src.rpm && \
   rpmbuild -ba ~/rpmbuild/SPECS/opencpu.spec
-
-WORKDIR /tmp
-
-RUN \
-  wget https://s3.amazonaws.com/rstudio-dailybuilds/rstudio-server-rhel-1.0.136-x86_64.rpm && \
-  wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.1.834-rh5-x86_64.rpm
-
+  
 USER root
 
 RUN \
   yum install -y MTA mod_ssl /usr/sbin/semanage && \
-  cd /home/builder/rpmbuild/RPMS/x86_64/ && \
-  rpm -ivh rapache-*.rpm && \
-  rpm -ivh opencpu-lib-*.rpm && \
-  rpm -ivh opencpu-server-*.rpm
+  yum install -y /home/mockbuild/rpmbuild/RPMS/x86_64/rapache-*.rpm && \
+  yum install -y /home/mockbuild/rpmbuild/RPMS/x86_64/opencpu-lib-*.rpm && \
+  yum install -y /home/mockbuild/rpmbuild/RPMS/x86_64/opencpu-server-*.rpm 
 
 # Cleanup
 RUN \
-  rm -rf /home/builder/* && \
-  userdel builder && \
+  rm -rf /home/mockbuild/* && \
+  userdel mockbuild && \
+  yum erase mock -y && \
   yum autoremove -y
 
 # Configure default shiny user with password shiny
@@ -77,30 +83,35 @@ RUN \
   useradd -m shiny && \
   echo "shiny:shiny" | chpasswd
 
+USER root
+
+WORKDIR /tmp
+
+RUN \
+  wget https://download2.rstudio.org/rstudio-server-rhel-$RSTUDIO_SERVER_VERSION-x86_64.rpm && \
+  wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-$SHINY_SERVER_VERSION-rh5-x86_64.rpm
+
+
 RUN \
   echo "Installing shiny from CRAN" && \
-  Rscript -e "install.packages('shiny')" && \
-  echo "Installing rmarkdown from CRAN" && \
-  Rscript -e "install.packages('rmarkdown')"
+  Rscript -e "install.packages('shiny', repos='https://cloud.r-project.org/')"
+
+#RUN \
+#  echo "Installing shiny from MRAN" && \
+#  Rscript -e "install.packages('shiny')"
 
 # Add default root password with password r00tpassw0rd
 RUN \
   echo "root:r00tpassw0rd" | chpasswd
 
 RUN \
-  yum install -y --nogpgcheck /tmp/shiny-server-1.5.1.834-rh5-x86_64.rpm && \
-  rm -f /tmp/shiny-server-1.5.1.834-rh5-x86_64.rpm
+  yum install -y --nogpgcheck /tmp/shiny-server-$SHINY_SERVER_VERSION-rh5-x86_64.rpm && \
+  rm -f /tmp/shiny-server-$SHINY_SERVER_VERSION-rh5-x86_64.rpm
 
 RUN \
-  yum install -y --nogpgcheck /tmp/rstudio-server-rhel-1.0.136-x86_64.rpm && \
-  rm -f /tmp/rstudio-server-rhel-1.0.136-x86_64.rpm
+  yum install -y --nogpgcheck /tmp/rstudio-server-rhel-$RSTUDIO_SERVER_VERSION-x86_64.rpm && \
+  rm -f /tmp/rstudio-server-rhel-$RSTUDIO_SERVER_VERSION-x86_64.rpm
 
-# install additional packages
-ADD \
-  installRpackages.sh /usr/local/bin/installRpackages.sh
-RUN \
-  chmod +x /usr/local/bin/installRpackages.sh && \
-  /usr/local/bin/installRpackages.sh
 
 # Server ports
 EXPOSE 80 443 9001
@@ -145,9 +156,36 @@ RUN \
   ln /srv/shiny-server/apps /home/shiny/shiny-server/apps -s && \
   ln /srv/shiny-server/rmd /home/shiny/shiny-server/rmd -s
 
-USER root
-RUN \ 
-  chmod +rx /home/shiny
+#ADD \
+#  .Rprofile /home/shiny/.Rprofile
 
-# Define default command
+USER root
+
+# install useful R packages
+ADD \
+  installRpackages.sh /tmp/installRpackages.sh
+RUN \
+  chmod +x /tmp/installRpackages.sh && \
+  /tmp/installRpackages.sh
+
+
+# install Chemometrics R packages
+#ADD \
+#  installChempackages.sh /tmp/installChempackages.sh
+#RUN \
+#  chmod +x /tmp/installChempackages.sh && \
+#  /tmp/installChempackages.sh
+
+
+# install useful machine learning packages
+#ADD \
+#  installMLpackages.sh /tmp/installMLpackages.sh
+#RUN \
+#  chmod +x /tmp/installMLpackages.sh && \
+#  /tmp/installMLpackages.sh
+
+
+# Define default command.
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
+
+
