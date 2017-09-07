@@ -23,42 +23,11 @@
 #Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('EBImage')"
 
 # This installs R packages in CRAN
-#echo "Installing ggplot2 from CRAN"
-#Rscript -e "install.packages('ggplot2')"
+echo "Installing ggplot2 from CRAN"
+Rscript -e "install.packages('ggplot2')"
 echo "Installing rmarkdown from CRAN"
 Rscript -e "install.packages('rmarkdown')"
 echo "Installing htmlwidgets from CRAN"
 Rscript -e "install.packages('htmlwidgets')"
-#echo "Installing plotly from CRAN"
-#Rscript -e "install.packages('plotly')"
-#echo "Installing e1071 from CRAN"
-#Rscript -e "install.packages('e1071')"
-#echo "Installing rphast from CRAN"
-#Rscript -e "install.packages('rphast')"
-#echo "Installing data.table from CRAN"
-#Rscript -e "install.packages('data.table')"
-#echo "Installing SparseM from CRAN"
-#Rscript -e "install.packages('SparseM')"
-#echo "Installing caret from CRAN"
-#Rscript -e "install.packages('caret')"
-#echo "Installing lazyeval from CRAN"
-#Rscript -e "install.packages('lazyeval')"
-#echo "Installing ROCR from CRAN"
-#Rscript -e "install.packages('ROCR')"
-#echo "Installing kernlab from CRAN"
-#Rscript -e "install.packages('kernlab')"
-
-echo "Installing VPdtw from CRAN"
-Rscript -e "install.packages('VPdtw')"
-echo "Installing kernlab from CRAN"
-Rscript -e "install.packages('mdatools')"
-
-echo "Installing david-clifford/VPdtw from github"
-Rscript -e "library(devtools); install_github('david-clifford/VPdtw')"
-
-echo "Installing mjmg/bluQplantQPEPBB from github"
-Rscript -e "library(devtools); install_github('mjmg/bluQplantQPEPBB')"
-
-
-
-
+echo "Installing plotly from CRAN"
+Rscript -e "install.packages('plotly')"
